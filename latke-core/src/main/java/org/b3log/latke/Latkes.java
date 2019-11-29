@@ -18,6 +18,7 @@ package org.b3log.latke;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.cache.redis.RedisCache;
+import org.b3log.latke.http.renderer.StaticFileRenderer;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Discoverer;
 import org.b3log.latke.logging.Level;
@@ -39,7 +40,7 @@ import java.util.concurrent.Executors;
  * Latke framework configuration utility facade.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 2.11.0.10, Nov 5, 2019
+ * @version 2.11.0.11, Nov 22, 2019
  * @see #init()
  * @see #shutdown()
  * @see #getServePath()
@@ -60,7 +61,7 @@ public final class Latkes {
     /**
      * Version.
      */
-    public static final String VERSION = "3.0.14";
+    public static final String VERSION = "3.0.17";
 
     /**
      * Application startup time millisecond.
@@ -166,6 +167,27 @@ public final class Latkes {
      */
     public static String getOperatingSystemName() {
         return System.getProperty("os.name");
+    }
+
+    private static boolean inJar;
+
+    static {
+        try {
+            final URL resource = StaticFileRenderer.class.getResource("/");
+            inJar = null == resource || "jar".equals(resource.toURI().getScheme());
+        } catch (final Exception e) {
+            LOGGER.log(Level.ERROR, "Checks filesystem failed, exit", e);
+            System.exit(-1);
+        }
+    }
+
+    /**
+     * Checks whether process is running via jar.
+     *
+     * @return {@code true} it is, returns {@code false} otherwise
+     */
+    public static boolean isInJar() {
+        return inJar;
     }
 
     /**
